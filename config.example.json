@@ -1,0 +1,30 @@
+{
+  "sensor-id": "0271a7bf-b4d6-4f74-95d9-4b83f80d2808",
+  "registered": false,
+  "network-name": null,
+  "certificate-string": "very strong encrypted string, password '123' ",
+  "server-url": "http://127.0.0.1:5000",
+  "pubnub": {
+    "subscribe-key": "sub-X-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+    "publish-key": "pub-X-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+    "channel-name": null
+  },
+  "thresholds": {
+    "co2": {
+      "warning": 800,
+      "danger": 1200
+    },
+    "temperature_c": {
+      "warning": 27,
+      "danger": 30
+    },
+    "humidity_percent": {
+      "warning": 60,
+      "danger": 70
+    },
+    "pm25_ugm3": {
+      "warning": 35,
+      "danger": 55
+    }
+  }
+}
