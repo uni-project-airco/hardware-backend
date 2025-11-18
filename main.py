@@ -4,11 +4,30 @@ from typing import Dict
 
 import requests
 
+from vendors.pubnub_client import PubNubClient
+
+
+def load_config(path: Path) -> Dict:
+    with open(path) as f:
+        return json.load(f)
+
+
+def save_config(path: Path, cfg: Dict) -> None:
+    with open(path, "w") as f:
+        json.dump(cfg, f, indent=2)
+
+
 CONFIG_PATH = Path(__file__).parent / "config.json"
+CONFIG = load_config(CONFIG_PATH)
+PUBNUB_CLIENT = PubNubClient(
+    sub_key=CONFIG['pubnub']['subscribe-key'],
+    pub_key=CONFIG['pubnub']['publish-key'],
+    sensor_id=CONFIG['sensor-id'],
+    chanel_name=CONFIG['pubnub']['channel-name']
+)
 
 
 def pubnub_channel_boot(cfg: Dict) -> None:
-    from vendors.pubnub_client import PubNubClient
     if cfg["pubnub"]["channel-name"] is None:
         url: str = f"{cfg['server-url']}/device/register"
         response: requests.Response = requests.post(
@@ -23,8 +42,6 @@ def pubnub_channel_boot(cfg: Dict) -> None:
 
         cfg["pubnub"]["channel-name"] = response.json()["channel"]
 
-    PubNubClient.configure(cfg)
-
 
 def boot(cfg: Dict) -> Dict:
     # TODO connect to home wifi if not registered
@@ -36,16 +53,6 @@ def boot(cfg: Dict) -> Dict:
     # update_config(cfg)
 
     return cfg
-
-
-def load_config(path: Path) -> Dict:
-    with open(path) as f:
-        return json.load(f)
-
-
-def save_config(path: Path, cfg: Dict) -> None:
-    with open(path, "w") as f:
-        json.dump(cfg, f, indent=2)
 
 
 if __name__ == "__main__":
