@@ -43,7 +43,7 @@ def pubnub_channel_boot(cfg: Dict) -> None:
             json={
                 "sensor-id": cfg["sensor-id"],
             },
-            headers={"certificate-string": cfg['certificate-string']}
+            headers={"certificate-string": cfg['certificate-string'], "sensor-id": cfg['sensor-id']}
 
         )
         if not response.ok:
@@ -154,7 +154,7 @@ if __name__ == "__main__":
                 "humidity": round(calculations['humidity'] / 5),
                 "co2": round(calculations['co2'] / 5),
                 "pm25": round(calculations['pm25'] / 5),
-            }, headers={"certificate-string": cfg['certificate-string']})
+            }, headers={"certificate-string": cfg['certificate-string'], "sensor-id": cfg['sensor-id']})
 
     finally:
         stop_flag = True
