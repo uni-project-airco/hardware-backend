@@ -37,15 +37,6 @@ class SCD4xSensor:
         return False
 
     def read_telemetry(self) -> dict:
-        """
-        Returns dict:
-        {
-            'co2': <ppm or None>,
-            'temperature': <°C or None>,
-            'humidity': <%RH or None>,
-        }
-        Raises if data can’t be obtained after retries.
-        """
         if not self._ensure_data_ready():
             raise RuntimeError("SCD4x data not ready after retries")
 

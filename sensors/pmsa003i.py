@@ -7,7 +7,6 @@ from adafruit_pm25.i2c import PM25_I2C
 
 
 class PMSA003ISensor:
-    """Wrapper around PMSA003I (PM25_I2C) with simple retry + parameter access."""
 
     def __init__(self, i2c: busio.I2C, reset_pin: Optional[Any] = None, *, max_retries: int = 5,
                  retry_delay_sec: float = 2.0):
