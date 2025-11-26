@@ -41,9 +41,10 @@ def pubnub_channel_boot(cfg: Dict) -> None:
         response: requests.Response = requests.post(
             url=url,
             json={
-                "certification-string": cfg["certificate-string"],
                 "sensor-id": cfg["sensor-id"],
             },
+            headers={"certificate-string": cfg['certificate-string"']}
+
         )
         if not response.ok:
             raise ValueError("Device certification failed")
