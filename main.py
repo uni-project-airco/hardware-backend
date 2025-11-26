@@ -30,7 +30,8 @@ PUBNUB_CLIENT = PubNubClient(
     sub_key=CONFIG['pubnub']['subscribe-key'],
     pub_key=CONFIG['pubnub']['publish-key'],
     sensor_id=CONFIG['sensor-id'],
-    chanel_name=CONFIG['pubnub']['channel-name']
+    chanel_name=CONFIG['pubnub']['channel-name'],
+    access_token=CONFIG['pubnub']['access-token']
 )
 
 
@@ -48,6 +49,7 @@ def pubnub_channel_boot(cfg: Dict) -> None:
             raise ValueError("Device certification failed")
 
         cfg["pubnub"]["channel-name"] = response.json()["channel"]
+        cfg["pubnub"]["access-token"] = response.json()["token"]
 
 
 def boot(cfg: Dict) -> Dict:
@@ -106,7 +108,8 @@ def send_alerts(cfg: Dict) -> None:
                     PUBNUB_CLIENT.send_alert(title=f"{key} alert",
                                              message=f"{key} in a dangerous level: {value}",
                                              status='high')
-                elif (value > cfg['thresholds'][key]['warning']) and (previous_alerts[key] not in ['warning', 'danger']):
+                elif (value > cfg['thresholds'][key]['warning']) and (
+                        previous_alerts[key] not in ['warning', 'danger']):
                     previous_alerts[key] = 'warning'
                     PUBNUB_CLIENT.send_alert(title=f"{key} alert",
                                              message=f"{key} in a warning level: {value}",

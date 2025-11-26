@@ -7,7 +7,8 @@
   "pubnub": {
     "subscribe-key": "sub-X-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
     "publish-key": "pub-X-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
-    "channel-name": null
+    "channel-name": null,
+    "access-token": null
   },
   "thresholds": {
     "co2": {

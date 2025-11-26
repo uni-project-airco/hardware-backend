@@ -4,7 +4,7 @@ from pubnub.pubnub import PubNub
 
 class PubNubClient:
 
-    def __init__(self, sub_key: str, pub_key: str, sensor_id: str, chanel_name: str):
+    def __init__(self, sub_key: str, pub_key: str, sensor_id: str, chanel_name: str, access_token: str):
         pn_config = PNConfiguration()
         pn_config.subscribe_key = sub_key
         pn_config.publish_key = pub_key
@@ -15,6 +15,7 @@ class PubNubClient:
         pn_config.origin = "ps.pndsn.com"
 
         self.pubnub = PubNub(pn_config)
+        self.pubnub.set_token(access_token)
         self.__sensor_id = sensor_id
         self.__channel = chanel_name
 
