@@ -135,7 +135,26 @@ if __name__ == "__main__":
         t_alerts.start()
 
         while True:
-            pass
+            calculations = {
+                "temperature": 0,
+                "humidity": 0,
+                "co2": 0,
+                "pm25": 0,
+            }
+            for i in range(5):  # total 10 minutes
+                with lock:
+                    snapshot = dict(shared_state)
+
+                for key, value in snapshot.items():
+                    calculations[key] += value
+                sleep(2 * 60)
+
+            requests.post(url=f'{cfg["server-url"]}/telemetry/save_telemetry', json={
+                "temperature": round(calculations['temperature'] / 5),
+                "humidity": round(calculations['humidity'] / 5),
+                "co2": round(calculations['co2'] / 5),
+                "pm25": round(calculations['pm25'] / 5),
+            }, headers={"certificate-string": cfg['certificate-string"']})
 
     finally:
         stop_flag = True
