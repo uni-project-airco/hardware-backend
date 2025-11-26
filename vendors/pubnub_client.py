@@ -30,7 +30,7 @@ class PubNubClient:
             }
 
         }
-        self.pubnub.publish().channel(self.__channel).message(messages).sync()
+        self.pubnub.publish().channel(self.__channel).message(messages).custom_message_type("sensor-telemetry").sync()
 
     def send_alert(self, title: str, message: str, status: str):
         messages = {
@@ -39,7 +39,7 @@ class PubNubClient:
             "message": message,
             "status": status
         }
-        self.pubnub.publish().channel(self.__channel).message(messages).sync()
+        self.pubnub.publish().channel(self.__channel).message(messages).custom_message_type("sensor-alert").sync()
 
     def get_alerts(self):
         pass
