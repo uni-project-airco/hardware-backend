@@ -1,5 +1,5 @@
 from time import sleep
-from typing import Literal
+from typing import Dict
 
 import adafruit_dht
 import board
@@ -10,7 +10,7 @@ class DHT22:
         self.__pin = pin
         self._dht = adafruit_dht.DHT22(pin, use_pulseio=False)
 
-    def read_telemetry(self, parameter: Literal["temperature", "humidity"]) -> int:
+    def read_telemetry(self) -> Dict[str, float]:
         context = {
             "temperature": self._dht.temperature,
             "humidity": self._dht.humidity
@@ -18,9 +18,8 @@ class DHT22:
 
         for i in range(5):  # try five times before error
             try:
-                if result := context[parameter]:
-                    return result
-            except RuntimeError as e:
+                return context
+            except RuntimeError:
                 sleep(2.0)
                 pass
         raise RuntimeError("Failed to reed temperature from DHT-25")

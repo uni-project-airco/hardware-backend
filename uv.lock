@@ -61,6 +61,19 @@ wheels = [
 ]
 
 [[package]]
+name = "adafruit-circuitpython-pm25"
+version = "2.1.22"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "adafruit-blinka" },
+    { name = "adafruit-circuitpython-busdevice" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e3/e3/96d879e1fa24139459fcd1afd305d5df96a26d428dfea0fca57cf004c7c4/adafruit_circuitpython_pm25-2.1.22.tar.gz", hash = "sha256:7ce0924624a8a0f30f4d0d880e60777ac386a5036c01929d036c70d8c7192829", size = 25085, upload-time = "2025-10-20T20:12:41.295Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d4/d2/9f3c60c784381f9742bc3f7175f81ee3319101cf2991338227781808ee1c/adafruit_circuitpython_pm25-2.1.22-py3-none-any.whl", hash = "sha256:0b6fb039110058bfaa0fa6bfa4e8544e3bbf59edfdfe01a5d6cc74a012b99ea9", size = 7664, upload-time = "2025-10-20T20:12:40.448Z" },
+]
+
+[[package]]
 name = "adafruit-circuitpython-requests"
 version = "4.1.15"
 source = { registry = "https://pypi.org/simple" }
@@ -71,6 +84,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f5/ae/ec54c3e224a012d620997604fdd6abdbff1b945df3b4aef43d780fd1d5c3/adafruit_circuitpython_requests-4.1.15.tar.gz", hash = "sha256:409cb1c9304a0ce0a4b2f64d572400007849f6972f92a4b08ebfe35a532761e7", size = 67841, upload-time = "2025-11-03T21:32:59.201Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/14/58/76a9805ff64d84a39463ac6eeb9c780becfc8ff58a93c5ace9244d56e442/adafruit_circuitpython_requests-4.1.15-py3-none-any.whl", hash = "sha256:62c6e44d23e8dfdc24f1f33464953019a9d88853b29fa471ac00200d4fa3e8ff", size = 10882, upload-time = "2025-11-03T21:32:57.915Z" },
+]
+
+[[package]]
+name = "adafruit-circuitpython-scd4x"
+version = "1.4.9"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "adafruit-blinka" },
+    { name = "adafruit-circuitpython-busdevice" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/15/16/5846d3562faa795c7ae648b01dfab26ff39e357a0834981c6f9ec4bea70b/adafruit_circuitpython_scd4x-1.4.9.tar.gz", hash = "sha256:fa96f70b7aaa9dadebc98513aeab538b5ba2bc985fdc7db1b3a4303dadd4be10", size = 27062, upload-time = "2025-10-20T20:10:54.778Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1c/5c/3c8b535c7eb1328db82df5187d586f1134013418e1136e0447980a77a889/adafruit_circuitpython_scd4x-1.4.9-py3-none-any.whl", hash = "sha256:759b2180228552030c40c3d9718994b0bab158190de07102abf8f2f1fc3aefd4", size = 7866, upload-time = "2025-10-20T20:10:53.923Z" },
 ]
 
 [[package]]
@@ -858,7 +884,10 @@ name = "hardware-backend"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "adafruit-blinka" },
     { name = "adafruit-circuitpython-dht" },
+    { name = "adafruit-circuitpython-pm25" },
+    { name = "adafruit-circuitpython-scd4x" },
     { name = "environs" },
     { name = "notebook" },
     { name = "pubnub" },
@@ -871,7 +900,10 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "adafruit-blinka", specifier = ">=8.67.0" },
     { name = "adafruit-circuitpython-dht", specifier = ">=4.0.10" },
+    { name = "adafruit-circuitpython-pm25", specifier = ">=2.1.22" },
+    { name = "adafruit-circuitpython-scd4x", specifier = ">=1.4.9" },
     { name = "environs", specifier = ">=14.5.0" },
     { name = "notebook", specifier = ">=7.4.7" },
     { name = "pubnub", specifier = ">=10.4.1" },

@@ -5,7 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "adafruit-blinka>=8.67.0",
     "adafruit-circuitpython-dht>=4.0.10",
+    "adafruit-circuitpython-pm25>=2.1.22",
+    "adafruit-circuitpython-scd4x>=1.4.9",
     "environs>=14.5.0",
     "notebook>=7.4.7",
     "pubnub>=10.4.1",

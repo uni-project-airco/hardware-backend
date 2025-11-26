@@ -1,9 +1,16 @@
 import json
+import threading
+import time
 from pathlib import Path
+from time import sleep
 from typing import Dict
 
+import board
+import busio
 import requests
 
+from sensors.pmsa003i import PMSA003ISensor
+from sensors.scd4x import SCD4xSensor
 from vendors.pubnub_client import PubNubClient
 
 
@@ -55,7 +62,77 @@ def boot(cfg: Dict) -> Dict:
     return cfg
 
 
+shared_state: dict = {}
+stop_flag = False
+lock = threading.Lock()
+
+
+def read_telemetry_data() -> None:
+    I2C = busio.I2C(board.SCL, board.SDA, frequency=100000)
+    pm_sensor = PMSA003ISensor(I2C, reset_pin=None)
+    scd_sensor = SCD4xSensor(I2C)
+
+    global shared_state, stop_flag
+    while not stop_flag:
+        with lock:
+            scd_data = scd_sensor.read_telemetry()
+            pm_data = pm_sensor.read_telemetry()
+
+            shared_state["temperature"] = scd_data["temperature"]
+            shared_state["co2"] = scd_data["co2"]
+            shared_state["humidity"] = scd_data["humidity"]
+            shared_state["pm25"] = pm_data["p_25"]
+
+        time.sleep(0.5)
+
+
+def send_alerts(cfg: Dict) -> None:
+    previous_alerts = {
+        "temperature": "normal",
+        "humidity": "normal",
+        "co2": "normal",
+        "pm25": "normal",
+    }
+
+    global shared_state, stop_flag
+    while not stop_flag:
+        with lock:
+            snapshot = dict(shared_state)
+
+        if snapshot:
+            for key, value in snapshot.items():
+                if (value > cfg['thresholds'][key]['danger']) and (previous_alerts[key] != "danger"):
+                    previous_alerts[key] = 'danger'
+                    PUBNUB_CLIENT.send_alert(title=f"{key} alert",
+                                             message=f"{key} in a dangerous level: {value}",
+                                             status='high')
+                elif (value > cfg['thresholds'][key]['warning']) and (previous_alerts[key] not in ['warning', 'danger']):
+                    previous_alerts[key] = 'warning'
+                    PUBNUB_CLIENT.send_alert(title=f"{key} alert",
+                                             message=f"{key} in a warning level: {value}",
+                                             status='warning')
+                elif value < cfg['thresholds'][key]['warning'] and (previous_alerts[key] != "normal"):
+                    previous_alerts[key] = 'normal'
+            print(snapshot)
+            sleep(2)
+
+
 if __name__ == "__main__":
-    cfg = load_config(CONFIG_PATH)
-    cfg = boot(cfg)
-    save_config(CONFIG_PATH, cfg)
+    try:
+        cfg = load_config(CONFIG_PATH)
+        cfg = boot(cfg)
+        save_config(CONFIG_PATH, cfg)
+        cfg = load_config(CONFIG_PATH)
+
+        t_writer = threading.Thread(target=read_telemetry_data, daemon=True)
+        t_alerts = threading.Thread(target=send_alerts, args=(cfg,), daemon=True)
+
+        t_writer.start()
+        t_alerts.start()
+
+        while True:
+            pass
+
+    finally:
+        stop_flag = True
+        time.sleep(2)
