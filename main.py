@@ -37,7 +37,7 @@ PUBNUB_CLIENT = PubNubClient(
 
 def pubnub_channel_boot(cfg: Dict) -> None:
     if cfg["pubnub"]["channel-name"] is None:
-        url: str = f"{cfg['server-url']}/device/register"
+        url: str = f"{cfg['server-url']}/sensor/register"
         response: requests.Response = requests.post(
             url=url,
             json={
