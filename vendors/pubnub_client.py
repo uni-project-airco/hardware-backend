@@ -19,15 +19,15 @@ class PubNubClient:
         self.__sensor_id = sensor_id
         self.__channel = chanel_name
 
-    def send_telemetry(self, temperature: float, humidity: float, co2_level: float, pm2_level: float):
+    def send_telemetry(self, temperature: float, humidity: float, co2: float, pm25: float):
         messages = {
             "request_type": "send_telemetry",
             "sensor_id": self.__sensor_id,
             "telemetry": {
                 "temperature": temperature,
                 "humidity": humidity,
-                "co2_level": co2_level,
-                "pm2_level": pm2_level
+                "co2_level": co2,
+                "pm2_level": pm25
             }
 
         }
@@ -41,6 +41,3 @@ class PubNubClient:
             "status": status
         }
         self.pubnub.publish().channel(self.__channel).message(messages).custom_message_type("sensor-alert").sync()
-
-    def get_alerts(self):
-        pass

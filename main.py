@@ -89,9 +89,9 @@ def read_telemetry_data() -> None:
             scd_data = scd_sensor.read_telemetry()
             pm_data = pm_sensor.read_telemetry()
 
-            shared_state["temperature"] = scd_data["temperature"]
+            shared_state["temperature"] = round(scd_data["temperature"])
             shared_state["co2"] = scd_data["co2"]
-            shared_state["humidity"] = scd_data["humidity"]
+            shared_state["humidity"] = round(scd_data["humidity"])
             shared_state["pm25"] = pm_data["p_25"]
 
         time.sleep(0.5)
@@ -125,8 +125,18 @@ def send_alerts(cfg: Dict) -> None:
                                              status='warning')
                 elif value < cfg['thresholds'][key]['warning'] and (previous_alerts[key] != "normal"):
                     previous_alerts[key] = 'normal'
-            logger.info(f"Alerts check - {snapshot}")
-            sleep(2)
+        sleep(2)
+
+
+def send_telemetry_update() -> None:
+    global shared_state, stop_flag
+    while not stop_flag:
+        with lock:
+            snapshot = dict(shared_state)
+
+        if snapshot:
+            PUBNUB_CLIENT.send_telemetry(**snapshot)
+        sleep(5)
 
 
 if __name__ == "__main__":
@@ -139,9 +149,11 @@ if __name__ == "__main__":
 
         t_writer = threading.Thread(target=read_telemetry_data, daemon=True)
         t_alerts = threading.Thread(target=send_alerts, args=(cfg,), daemon=True)
+        t_update = threading.Thread(target=send_telemetry_update, daemon=True)
 
         t_writer.start()
         t_alerts.start()
+        t_update.start()
 
         while True:
             calculations = {
