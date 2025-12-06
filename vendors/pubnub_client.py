@@ -1,6 +1,8 @@
 from pubnub.pnconfiguration import PNConfiguration
 from pubnub.pubnub import PubNub
 
+from utils import calculate_air_quality_index
+
 
 class PubNubClient:
 
@@ -19,15 +21,17 @@ class PubNubClient:
         self.__sensor_id = sensor_id
         self.__channel = chanel_name
 
-    def send_telemetry(self, temperature: float, humidity: float, co2: float, pm25: float):
+    def send_telemetry(self, **kwargs):
+        aqi = calculate_air_quality_index(kwargs)
         messages = {
             "request_type": "send_telemetry",
             "sensor_id": self.__sensor_id,
+            "aqi": aqi,
             "telemetry": {
-                "temperature": temperature,
-                "humidity": humidity,
-                "co2_level": co2,
-                "pm2_level": pm25
+                "temperature": kwargs.get("temperature"),
+                "humidity": kwargs.get("humidity"),
+                "co2_level": kwargs.get("co2"),
+                "pm2_level": kwargs.get("pm25")
             }
 
         }

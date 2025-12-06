@@ -41,6 +41,7 @@ PUBNUB_CLIENT = PubNubClient(
     chanel_name=CONFIG['pubnub']['channel-name'],
     access_token=CONFIG['pubnub']['access-token']
 )
+CURRENT_THRESHOLDS = {}
 
 
 def pubnub_channel_boot(cfg: Dict) -> None:
@@ -136,7 +137,7 @@ def send_telemetry_update() -> None:
 
         if snapshot:
             PUBNUB_CLIENT.send_telemetry(**snapshot)
-        sleep(5)
+        sleep(10)
 
 
 if __name__ == "__main__":
@@ -146,6 +147,7 @@ if __name__ == "__main__":
         cfg = boot(cfg)
         save_config(CONFIG_PATH, cfg)
         cfg = load_config(CONFIG_PATH)
+        CURRENT_THRESHOLDS = cfg['thresholds']
 
         t_writer = threading.Thread(target=read_telemetry_data, daemon=True)
         t_alerts = threading.Thread(target=send_alerts, args=(cfg,), daemon=True)

@@ -15,15 +15,15 @@
       "warning": 800,
       "danger": 1200
     },
-    "temperature_c": {
+    "temperature": {
       "warning": 27,
       "danger": 30
     },
-    "humidity_percent": {
+    "humidity": {
       "warning": 60,
       "danger": 70
     },
-    "pm25_ugm3": {
+    "pm25": {
       "warning": 35,
       "danger": 55
     }
