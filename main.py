@@ -141,7 +141,7 @@ if __name__ == "__main__":
                 "co2": 0,
                 "pm25": 0,
             }
-            for i in range(5):  # total 10 minutes
+            for i in range(6):  # total 10 minutes
                 with lock:
                     snapshot = dict(shared_state)
 
