@@ -1,4 +1,5 @@
 import json
+import logging
 import threading
 import time
 from pathlib import Path
@@ -12,6 +13,8 @@ import requests
 from sensors.pmsa003i import PMSA003ISensor
 from sensors.scd4x import SCD4xSensor
 from vendors.pubnub_client import PubNubClient
+
+logger = logging.getLogger(__name__)
 
 
 def load_config(path: Path) -> Dict:
@@ -117,12 +120,13 @@ def send_alerts(cfg: Dict) -> None:
                                              status='warning')
                 elif value < cfg['thresholds'][key]['warning'] and (previous_alerts[key] != "normal"):
                     previous_alerts[key] = 'normal'
-            print(snapshot)
+            logger.info("Alerts check", snapshot)
             sleep(2)
 
 
 if __name__ == "__main__":
     try:
+        logger.info("Program launched")
         cfg = load_config(CONFIG_PATH)
         cfg = boot(cfg)
         save_config(CONFIG_PATH, cfg)
@@ -148,13 +152,14 @@ if __name__ == "__main__":
                 for key, value in snapshot.items():
                     calculations[key] += value
                 sleep(2 * 60)
-
-            requests.post(url=f'{cfg["server-url"]}/telemetry/save_telemetry', json={
+            response = requests.post(url=f'{cfg["server-url"]}/telemetry/save_telemetry', json={
                 "temperature": round(calculations['temperature'] / 5),
                 "humidity": round(calculations['humidity'] / 5),
                 "co2": round(calculations['co2'] / 5),
                 "pm25": round(calculations['pm25'] / 5),
             }, headers={"certificate-string": cfg['certificate-string'], "sensor-id": cfg['sensor-id']})
+
+            logger.info("Telemetry sent", response.status_code)
 
     finally:
         stop_flag = True
