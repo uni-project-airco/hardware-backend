@@ -12,6 +12,7 @@ import requests
 
 from sensors.pmsa003i import PMSA003ISensor
 from sensors.scd4x import SCD4xSensor
+from utils import calculate_air_quality_index
 from vendors.pubnub_client import PubNubClient
 
 logging.basicConfig(
@@ -129,13 +130,14 @@ def send_alerts(cfg: Dict) -> None:
         sleep(2)
 
 
-def send_telemetry_update() -> None:
+def send_telemetry_update(cfg: Dict) -> None:
     global shared_state, stop_flag
     while not stop_flag:
         with lock:
             snapshot = dict(shared_state)
 
         if snapshot:
+            snapshot["aqi"] = calculate_air_quality_index(snapshot, cfg["thresholds"])
             PUBNUB_CLIENT.send_telemetry(**snapshot)
         sleep(10)
 
@@ -151,7 +153,7 @@ if __name__ == "__main__":
 
         t_writer = threading.Thread(target=read_telemetry_data, daemon=True)
         t_alerts = threading.Thread(target=send_alerts, args=(cfg,), daemon=True)
-        t_update = threading.Thread(target=send_telemetry_update, daemon=True)
+        t_update = threading.Thread(target=send_telemetry_update, args=(cfg,), daemon=True)
 
         t_writer.start()
         t_alerts.start()

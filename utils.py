@@ -1,7 +1,7 @@
-from main import CURRENT_THRESHOLDS
+from typing import Dict
 
 
-def calculate_air_quality_index(data):
+def calculate_air_quality_index(data: Dict, thresholds: Dict):
     weights = {
         "co2": 0.40,
         "pm25": 0.30,
@@ -15,9 +15,9 @@ def calculate_air_quality_index(data):
     danger_zone = False
 
     for parameter, value in data.items():
-        if parameter in CURRENT_THRESHOLDS:
-            warning = CURRENT_THRESHOLDS[parameter].get("warning")
-            danger = CURRENT_THRESHOLDS[parameter].get("danger")
+        if parameter in thresholds:
+            warning = thresholds[parameter].get("warning")
+            danger = thresholds[parameter].get("danger")
 
             if value >= danger:
                 danger_zone = True
