@@ -14,6 +14,12 @@ from sensors.pmsa003i import PMSA003ISensor
 from sensors.scd4x import SCD4xSensor
 from vendors.pubnub_client import PubNubClient
 
+
+logging.basicConfig(
+    filename='./logfile.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 
