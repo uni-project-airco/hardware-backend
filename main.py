@@ -55,7 +55,7 @@ def pubnub_channel_boot(cfg: Dict) -> None:
 
         )
         if not response.ok:
-            raise ValueError("Device certification failed")
+            raise RuntimeError("Device certification failed")
 
         cfg["pubnub"]["channel-name"] = response.json()["channel"]
         cfg["pubnub"]["access-token"] = response.json()["token"]
