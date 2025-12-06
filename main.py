@@ -14,7 +14,6 @@ from sensors.pmsa003i import PMSA003ISensor
 from sensors.scd4x import SCD4xSensor
 from vendors.pubnub_client import PubNubClient
 
-
 logging.basicConfig(
     filename='./logfile.log',
     level=logging.INFO,
@@ -126,7 +125,7 @@ def send_alerts(cfg: Dict) -> None:
                                              status='warning')
                 elif value < cfg['thresholds'][key]['warning'] and (previous_alerts[key] != "normal"):
                     previous_alerts[key] = 'normal'
-            logger.info("Alerts check", snapshot)
+            logger.info(f"Alerts check - {snapshot}")
             sleep(2)
 
 
@@ -165,7 +164,7 @@ if __name__ == "__main__":
                 "pm25": round(calculations['pm25'] / 5),
             }, headers={"certificate-string": cfg['certificate-string'], "sensor-id": cfg['sensor-id']})
 
-            logger.info("Telemetry sent", response.status_code)
+            logger.info(f"Telemetry sent - {response.status_code}")
 
     finally:
         stop_flag = True
