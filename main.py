@@ -14,6 +14,7 @@ from sensors.pmsa003i import PMSA003ISensor
 from sensors.scd4x import SCD4xSensor
 from utils import calculate_air_quality_index
 from vendors.pubnub_client import PubNubClient
+from devices.buzzer import Buzzer
 
 logging.basicConfig(
     filename='./logfile.log',
@@ -107,6 +108,7 @@ def send_alerts(cfg: Dict) -> None:
         "co2": "normal",
         "pm25": "normal",
     }
+    buzzer = Buzzer(18)
 
     global shared_state, stop_flag, CURRENT_THRESHOLDS
     while not stop_flag:
@@ -125,6 +127,7 @@ def send_alerts(cfg: Dict) -> None:
                                              status='high',
                                              value=value
                                              )
+                    buzzer.play_alert(5)
                 elif (value > thresholds[key]['warning']) and (
                         previous_alerts[key] not in ['warning', 'danger']):
                     previous_alerts[key] = 'warning'
