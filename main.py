@@ -78,6 +78,7 @@ def boot(cfg: Dict) -> Dict:
 shared_state: dict = {}
 stop_flag = False
 lock = threading.Lock()
+config_lock = threading.Lock()
 
 
 def read_telemetry_data() -> None:
@@ -107,39 +108,82 @@ def send_alerts(cfg: Dict) -> None:
         "pm25": "normal",
     }
 
-    global shared_state, stop_flag
+    global shared_state, stop_flag, CURRENT_THRESHOLDS
     while not stop_flag:
         with lock:
             snapshot = dict(shared_state)
 
+        with config_lock:
+            thresholds = dict(CURRENT_THRESHOLDS)
+
         if snapshot:
             for key, value in snapshot.items():
-                if (value > cfg['thresholds'][key]['danger']) and (previous_alerts[key] != "danger"):
+                if (value > thresholds[key]['danger']) and (previous_alerts[key] != "danger"):
                     previous_alerts[key] = 'danger'
                     PUBNUB_CLIENT.send_alert(title=f"{key} alert",
                                              message=f"{key} in a dangerous level: {value}",
-                                             status='high')
-                elif (value > cfg['thresholds'][key]['warning']) and (
+                                             status='high',
+                                             value=value
+                                             )
+                elif (value > thresholds[key]['warning']) and (
                         previous_alerts[key] not in ['warning', 'danger']):
                     previous_alerts[key] = 'warning'
                     PUBNUB_CLIENT.send_alert(title=f"{key} alert",
                                              message=f"{key} in a warning level: {value}",
-                                             status='warning')
-                elif value < cfg['thresholds'][key]['warning'] and (previous_alerts[key] != "normal"):
+                                             status='warning',
+                                             value=value
+                                             )
+                elif value < thresholds[key]['warning'] and (previous_alerts[key] != "normal"):
                     previous_alerts[key] = 'normal'
         sleep(2)
 
 
 def send_telemetry_update(cfg: Dict) -> None:
-    global shared_state, stop_flag
+    global shared_state, stop_flag, CURRENT_THRESHOLDS
     while not stop_flag:
         with lock:
             snapshot = dict(shared_state)
 
+        with config_lock:
+            thresholds = dict(CURRENT_THRESHOLDS)
+
         if snapshot:
-            snapshot["aqi"] = calculate_air_quality_index(snapshot, cfg["thresholds"])
+            snapshot["aqi"] = calculate_air_quality_index(snapshot, thresholds)
             PUBNUB_CLIENT.send_telemetry(**snapshot)
         sleep(10)
+
+
+def handle_pubnub_message(message: Dict) -> None:
+    global CURRENT_THRESHOLDS, CONFIG_PATH
+
+    request_type = message.get("request_type", None)
+
+    if request_type == "change_thresholds_level":
+        thresholds = message.get("thresholds")
+        if thresholds:
+            logger.info(f"Received threshold update: {thresholds}")
+
+            with config_lock:
+                cfg = load_config(CONFIG_PATH)
+                cfg['thresholds'] = thresholds
+                save_config(CONFIG_PATH, cfg)
+                CURRENT_THRESHOLDS = thresholds
+                logger.info(f"Updated thresholds in config: {thresholds}")
+
+
+def listen_pubnub_messages() -> None:
+    global stop_flag
+    try:
+        PUBNUB_CLIENT.subscribe(message_handler=handle_pubnub_message)
+        logger.info("Subscribed to PubNub channel for threshold updates")
+
+        while not stop_flag:
+            sleep(1)
+    except Exception as e:
+        logger.error(f"Error in PubNub listener thread: {e}")
+    finally:
+        PUBNUB_CLIENT.unsubscribe()
+        logger.info("Unsubscribed from PubNub channel")
 
 
 if __name__ == "__main__":
@@ -154,10 +198,12 @@ if __name__ == "__main__":
         t_writer = threading.Thread(target=read_telemetry_data, daemon=True)
         t_alerts = threading.Thread(target=send_alerts, args=(cfg,), daemon=True)
         t_update = threading.Thread(target=send_telemetry_update, args=(cfg,), daemon=True)
+        t_pubnub_listener = threading.Thread(target=listen_pubnub_messages, daemon=True)
 
         t_writer.start()
         t_alerts.start()
         t_update.start()
+        t_pubnub_listener.start()
 
         while True:
             calculations = {
