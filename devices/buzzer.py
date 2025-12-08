@@ -13,7 +13,7 @@ class Buzzer:
         lgpio.gpio_claim_output(self.chip, pin)
 
     def _play_sound(self):
-        for _ in range(100):
+        for _ in range(300):
             lgpio.gpio_write(self.chip, self.pin, 1)
             time.sleep(self.period / 2)
             lgpio.gpio_write(self.chip, self.pin, 0)
@@ -22,6 +22,7 @@ class Buzzer:
     def play_alert(self, n_times):
         for _ in range(n_times):
             self._play_sound()
+            time.sleep(0.5)
 
     def __del__(self):
         lgpio.gpiochip_close(self.chip)
