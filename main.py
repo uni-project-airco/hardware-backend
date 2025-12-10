@@ -41,7 +41,9 @@ PUBNUB_CLIENT = PubNubClient(
     pub_key=CONFIG['pubnub']['publish-key'],
     sensor_id=CONFIG['sensor-id'],
     chanel_name=CONFIG['pubnub']['channel-name'],
-    access_token=CONFIG['pubnub']['access-token']
+    access_token=CONFIG['pubnub']['access-token'],
+    server_url=CONFIG['server-url'],
+    certification_string=CONFIG['certificate-string']
 )
 CURRENT_THRESHOLDS = {}
 
