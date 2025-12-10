@@ -83,10 +83,6 @@ def boot(cfg: Dict) -> Dict:
     # wifi_boot()
 
     pubnub_channel_boot(cfg)
-
-    # TODO get current thresholds
-    # update_config(cfg)
-
     return cfg
 
 
