@@ -36,6 +36,17 @@ def save_config(path: Path, cfg: Dict) -> None:
 
 CONFIG_PATH = Path(__file__).parent / "config.json"
 CONFIG = load_config(CONFIG_PATH)
+config_lock = threading.Lock()
+
+
+def update_pubnub_token_in_config(new_token: str) -> None:
+    with config_lock:
+        cfg = load_config(CONFIG_PATH)
+        cfg['pubnub']['access-token'] = new_token
+        save_config(CONFIG_PATH, cfg)
+        logger.info("Updated PubNub access token in config file")
+
+
 PUBNUB_CLIENT = PubNubClient(
     sub_key=CONFIG['pubnub']['subscribe-key'],
     pub_key=CONFIG['pubnub']['publish-key'],
@@ -43,7 +54,8 @@ PUBNUB_CLIENT = PubNubClient(
     chanel_name=CONFIG['pubnub']['channel-name'],
     access_token=CONFIG['pubnub']['access-token'],
     server_url=CONFIG['server-url'],
-    certification_string=CONFIG['certificate-string']
+    certification_string=CONFIG['certificate-string'],
+    config_update_callback=update_pubnub_token_in_config
 )
 CURRENT_THRESHOLDS = {}
 
@@ -81,7 +93,6 @@ def boot(cfg: Dict) -> Dict:
 shared_state: dict = {}
 stop_flag = False
 lock = threading.Lock()
-config_lock = threading.Lock()
 
 
 def read_telemetry_data() -> None:
